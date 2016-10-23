@@ -14,27 +14,33 @@ const (
 type Ui struct {
 	DialogsHeaders *termui.Grid
 	Dialogs        []*termui.Grid
+	Dialog         *termui.Grid
 }
 
 func NewUi() *Ui {
-	return &Ui{}
-}
+	ui := &Ui{}
 
-func (this *Ui) Init() {
 	err := termui.Init()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	defer termui.Close()
+	ui.initDialogsHeaders()
+	ui.initDialog()
+	ui.setCommandModeHandlers()
 
-	this.InitDialogsHeaders()
-	this.setCommandModeHandlers()
+	return ui
+}
 
+func (*Ui) CloseUi() {
+	termui.Close()
+}
+
+func (this *Ui) Start() {
 	termui.Loop()
 }
 
-func (this *Ui) InitDialogsHeaders() {
+func (this *Ui) initDialogsHeaders() {
 	this.DialogsHeaders = termui.NewGrid()
 	this.DialogsHeaders.Width = termui.TermWidth()
 
@@ -52,14 +58,17 @@ func (this *Ui) InitDialogsHeaders() {
 	this.DialogsHeaders.Align()
 }
 
-func (*Ui) InitDialog() {
+func (this *Ui) initDialog() {
+	this.Dialog = termui.NewGrid()
+	this.Dialog.Width = termui.TermWidth()
+
 	dialog := termui.NewPar("$$MESSAGES$$")
 	dialog.Height = int(float32(termui.TermHeight()) * 0.8)
 
 	input := termui.NewPar("$$INPUT$$")
 	input.Height = int(float32(termui.TermHeight()) * 0.2)
 
-	termui.Body.AddRows(
+	this.Dialog.AddRows(
 		termui.NewRow(
 			termui.NewCol(12, 0, dialog),
 		),
@@ -67,7 +76,5 @@ func (*Ui) InitDialog() {
 			termui.NewCol(12, 0, input),
 		),
 	)
-	termui.Body.Align()
-
-	termui.Render(termui.Body)
+	this.Dialog.Align()
 }

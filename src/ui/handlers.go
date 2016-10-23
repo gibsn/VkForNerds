@@ -32,7 +32,7 @@ func (this *Ui) setCommandModeHandlers() {
 	})
 
 	termui.Handle("/sys/kbd/<enter>", func(e termui.Event) {
-		// this.DrawDialog()
+		termui.Render(this.Dialog)
 	})
 
 	termui.Handle("/sys/wnd/resize", func(e termui.Event) {

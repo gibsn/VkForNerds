@@ -2,6 +2,24 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/PuerkitoBio/goquery",
+			"repository": "https://github.com/PuerkitoBio/goquery",
+			"revision": "152b1a2c8f5d0340f658bb656032a39b94e52958",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/andybalholm/cascadia",
+			"repository": "https://github.com/andybalholm/cascadia",
+			"revision": "65919c611220063037b1db8eb334acaf17a6d8ea",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/codegangsta/inject",
+			"repository": "https://github.com/codegangsta/inject",
+			"revision": "33e0aa1cb7c019ccc3fbe049a8262a6403d30504",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/gizak/termui",
 			"repository": "https://github.com/gizak/termui",
 			"revision": "f309f2b73cb43f0fa7a31d89e0f7efbb6c51e005",
@@ -24,6 +42,13 @@
 			"repository": "https://github.com/nsf/termbox-go",
 			"revision": "b6acae516ace002cb8105a89024544a1480655a5",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/net/html",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "f11d7120b19ae21da5715f3e47621736de1b1da9",
+			"branch": "master",
+			"path": "/html"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",
