@@ -22,7 +22,7 @@
 		{
 			"importpath": "github.com/gizak/termui",
 			"repository": "https://github.com/gizak/termui",
-			"revision": "f309f2b73cb43f0fa7a31d89e0f7efbb6c51e005",
+			"revision": "d29684eba459e6aef23410bab8cadeb184b69cf2",
 			"branch": "master"
 		},
 		{
@@ -46,14 +46,14 @@
 		{
 			"importpath": "golang.org/x/net/html",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "f11d7120b19ae21da5715f3e47621736de1b1da9",
+			"revision": "541150ac4f433e755f5663eba5d888c2fa347343",
 			"branch": "master",
 			"path": "/html"
 		},
 		{
 			"importpath": "golang.org/x/net/websocket",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "f11d7120b19ae21da5715f3e47621736de1b1da9",
+			"revision": "541150ac4f433e755f5663eba5d888c2fa347343",
 			"branch": "master",
 			"path": "/websocket"
 		}

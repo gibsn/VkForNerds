@@ -21,7 +21,7 @@ func NewVkClient() *VkClient {
 func main() {
 	client := NewVkClient()
 
-	client.Api.RequestDialogsHeaders()
+	// client.Api.RequestDialogsHeaders()
 	client.Ui.Start()
 	client.Ui.CloseUi()
 }

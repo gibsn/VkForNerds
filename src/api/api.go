@@ -49,7 +49,7 @@ func (this *Api) RequestDialogsHeaders() {
 	var dialog Dialog
 	for body.More() {
 		body.Decode(&dialog)
-		fmt.Println(dialog)
+		// fmt.Println(dialog)
 	}
 
 	response.Body.Close()
