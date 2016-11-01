@@ -3,13 +3,14 @@ package main
 import (
 	"api"
 	"flag"
+	"log"
 	"ui"
 )
 
 type VkClient struct {
 	Ui  *ui.Ui
 	Api *api.Api
-	// Dialogs []Dialogs
+	// Dialogs []Dialog
 }
 
 func NewVkClient() *VkClient {
@@ -26,7 +27,8 @@ func main() {
 	client := NewVkClient()
 	client.Api.AccessToken = *token
 
-	// client.Api.RequestDialogsHeaders()
+	tmp := client.Api.RequestDialogsHeaders()
+	log.Println(tmp)
 	client.Ui.Start()
 	client.Ui.CloseUi()
 }

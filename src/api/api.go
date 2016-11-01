@@ -35,7 +35,7 @@ func Auth() {
 
 }
 
-func (this *Api) RequestDialogsHeaders() {
+func (this *Api) RequestDialogsHeaders() []Dialog {
 	response := this.request("messages.getDialogs", &map[string]string{})
 
 	body := json.NewDecoder(response.Body)
@@ -46,12 +46,15 @@ func (this *Api) RequestDialogsHeaders() {
 	}
 
 	var dialog Dialog
+	var dialogs []Dialog
 	for body.More() {
 		body.Decode(&dialog)
-		// fmt.Println(dialog)
+		dialogs = append(dialogs, dialog)
 	}
 
 	response.Body.Close()
+
+	return dialogs
 }
 
 func (this *Api) request(method string, params *map[string]string) *http.Response {
