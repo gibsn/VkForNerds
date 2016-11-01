@@ -2,6 +2,7 @@ package main
 
 import (
 	"api"
+	"flag"
 	"ui"
 )
 
@@ -19,7 +20,11 @@ func NewVkClient() *VkClient {
 }
 
 func main() {
+	token := flag.String("t", "", "vk token")
+	flag.Parse()
+
 	client := NewVkClient()
+	client.Api.AccessToken = *token
 
 	// client.Api.RequestDialogsHeaders()
 	client.Ui.Start()

@@ -9,7 +9,7 @@ import (
 )
 
 type Api struct {
-	accessToken string
+	AccessToken string
 }
 
 type Dialog struct {
@@ -27,7 +27,6 @@ var apiUrl = "https://api.vk.com/method/"
 
 func NewApi() *Api {
 	api := &Api{}
-	api.accessToken = ""
 
 	return api
 }
@@ -63,7 +62,7 @@ func (this *Api) request(method string, params *map[string]string) *http.Respons
 		query.Set(key, value)
 	}
 
-	query.Set("access_token", this.accessToken)
+	query.Set("access_token", this.AccessToken)
 	url.RawQuery = query.Encode()
 
 	response, err := http.Get(url.String())
