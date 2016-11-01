@@ -12,6 +12,7 @@ const (
 )
 
 type Ui struct {
+	CurrGrid       *termui.Grid
 	DialogsHeaders *termui.Grid
 	Dialogs        []*termui.Grid
 	Dialog         *termui.Grid

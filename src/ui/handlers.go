@@ -6,6 +6,19 @@ import (
 	"github.com/gizak/termui"
 )
 
+func (this *Ui) resizeCurrentGrid() {
+	this.CurrGrid.Width = termui.TermWidth()
+	this.CurrGrid.Align()
+	termui.Clear()
+	termui.Render(this.CurrGrid)
+}
+
+func (this *Ui) changeCurrentGrid(newGrid *termui.Grid) {
+	this.CurrGrid = newGrid
+	termui.Clear()
+	termui.Render(this.CurrGrid)
+}
+
 func (this *Ui) setCommandModeHandlers() {
 	termui.DefaultEvtStream.ResetHandlers()
 
@@ -14,8 +27,7 @@ func (this *Ui) setCommandModeHandlers() {
 	})
 
 	termui.Handle("/sys/kbd/m", func(e termui.Event) {
-		termui.Clear()
-		termui.Render(this.DialogsHeaders)
+		this.changeCurrentGrid(this.DialogsHeaders)
 	})
 
 	termui.Handle("/sys/kbd/i", func(e termui.Event) {
@@ -23,15 +35,11 @@ func (this *Ui) setCommandModeHandlers() {
 	})
 
 	termui.Handle("/sys/kbd/<enter>", func(e termui.Event) {
-		termui.Clear()
-		termui.Render(this.Dialog)
+		this.changeCurrentGrid(this.Dialog)
 	})
 
 	termui.Handle("/sys/wnd/resize", func(e termui.Event) {
-		termui.Body.Width = termui.TermWidth()
-		termui.Body.Align()
-		termui.Clear()
-		termui.Render(termui.Body)
+		this.resizeCurrentGrid()
 	})
 }
 
@@ -52,9 +60,6 @@ func (this *Ui) setInsertModeHandlers() {
 	})
 
 	termui.Handle("/sys/wnd/resize", func(e termui.Event) {
-		termui.Body.Width = termui.TermWidth()
-		termui.Body.Align()
-		termui.Clear()
-		termui.Render(termui.Body)
+		this.resizeCurrentGrid()
 	})
 }
