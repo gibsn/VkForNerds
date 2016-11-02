@@ -1,22 +1,21 @@
 package ui
 
 import (
+	"api"
 	"fmt"
-	"os"
 
 	"github.com/gizak/termui"
 )
 
+type Grid termui.Grid
+
+type Ui struct {
+	CurrGrid *termui.Grid
+}
+
 const (
 	dialogHeaderHeight = 7
 )
-
-type Ui struct {
-	CurrGrid       *termui.Grid
-	DialogsHeaders *termui.Grid
-	Dialogs        []*termui.Grid
-	Dialog         *termui.Grid
-}
 
 func NewUi() *Ui {
 	ui := &Ui{}
@@ -24,58 +23,84 @@ func NewUi() *Ui {
 	err := termui.Init()
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return nil
 	}
-	ui.initDialogsHeaders()
-	ui.initDialog()
-	ui.setCommandModeHandlers()
+	// ui.initDialogsHeaders()
+	// ui.initDialog()
 
 	return ui
 }
 
-func (*Ui) CloseUi() {
-	termui.Close()
-}
-
-func (this *Ui) Start() {
+func (this *Ui) StartUi() {
 	termui.Loop()
 }
 
-func (this *Ui) initDialogsHeaders() {
-	this.DialogsHeaders = termui.NewGrid()
-	this.DialogsHeaders.Width = termui.TermWidth()
-
-	nDialogs := termui.TermHeight()/dialogHeaderHeight + 1
-	for i := 0; i < nDialogs; i++ {
-		dialogHeader := termui.NewPar("$$USERNAME$$\n\n$$TEXT$$")
-		dialogHeader.Height = dialogHeaderHeight
-
-		this.DialogsHeaders.AddRows(
-			termui.NewRow(
-				termui.NewCol(12, 0, dialogHeader),
-			),
-		)
-	}
-	this.DialogsHeaders.Align()
+func (this *Ui) ResizeCurrentGrid() {
+	this.CurrGrid.Width = termui.TermWidth()
+	this.CurrGrid.Align()
+	termui.Clear()
+	termui.Render(this.CurrGrid)
 }
 
-func (this *Ui) initDialog() {
-	this.Dialog = termui.NewGrid()
-	this.Dialog.Width = termui.TermWidth()
+func (this *Ui) ChangeCurrentGrid(newGrid *termui.Grid) {
+	this.CurrGrid = newGrid
+	termui.Clear()
+	termui.Render(this.CurrGrid)
+}
 
-	dialog := termui.NewPar("$$MESSAGES$$")
-	dialog.Height = int(float32(termui.TermHeight()) * 0.8)
+func (this *Ui) initDialogsHeaders() {
+}
+
+func (this *Ui) CreateDialogGrid(dialog *api.Dialog) *termui.Grid {
+	dialogGrid := termui.NewGrid()
+	dialogGrid.Width = termui.TermWidth()
+
+	messages := termui.NewPar("$$MESSAGES$$")
+	messages.Height = int(float32(termui.TermHeight()) * 0.8)
 
 	input := termui.NewPar("$$INPUT$$")
 	input.Height = int(float32(termui.TermHeight()) * 0.2)
 
-	this.Dialog.AddRows(
+	dialogGrid.AddRows(
 		termui.NewRow(
-			termui.NewCol(12, 0, dialog),
+			termui.NewCol(12, 0, messages),
 		),
 		termui.NewRow(
 			termui.NewCol(12, 0, input),
 		),
 	)
-	this.Dialog.Align()
+
+	dialogGrid.Align()
+
+	return dialogGrid
+}
+
+func (this *Ui) CreateDialogsGrid(dialogs []api.Dialog) *termui.Grid {
+	dialogsGrid := termui.NewGrid()
+	dialogsGrid.Width = termui.TermWidth()
+
+	nDialogs := termui.TermHeight()/dialogHeaderHeight + 1
+	for i := 0; i < nDialogs && i < len(dialogs); i++ {
+		var dialogTitle string
+		if dialogs[i].Title != " ... " {
+			dialogTitle = dialogs[i].Title
+		} else {
+			dialogTitle = fmt.Sprintf("%d", dialogs[i].Uid)
+		}
+
+		//TODO: mention files in message like [Photo] or smth
+		str := fmt.Sprintf("%s\n\n%s", dialogTitle, dialogs[i].FirstMessage)
+		messageHeader := termui.NewPar(str)
+		messageHeader.Height = dialogHeaderHeight
+
+		dialogsGrid.AddRows(
+			termui.NewRow(
+				termui.NewCol(12, 0, messageHeader),
+			),
+		)
+	}
+
+	dialogsGrid.Align()
+
+	return dialogsGrid
 }

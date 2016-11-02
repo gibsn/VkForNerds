@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 )
+
+// https://oauth.vk.com/authorize?client_id=5680126&display=mobile&redirect_uri=https://oauth.vk.com/blank.html%20&scope=messages,offline&response_type=code&v=5.59
+// https://oauth.vk.com/access_token?client_id=5680126&client_secret=ehxgcUW4eGAArVVwx6Cd&redirect_uri=https://oauth.vk.com/blank.html&code=c1213133c1054533d4
 
 type Api struct {
 	AccessToken string
 }
 
-type Dialog struct {
+type DialogJson struct {
 	Date      uint64
 	Out       int
 	Uid       uint64
@@ -21,8 +23,16 @@ type Dialog struct {
 	Body      string
 }
 
-//https://oauth.vk.com/authorize?client_id=5680126&display=mobile&redirect_uri=https://oauth.vk.com/blank.html%20&scope=messages,offline&response_type=code&v=5.59
-//https://oauth.vk.com/access_token?client_id=5680126&client_secret=ehxgcUW4eGAArVVwx6Cd&redirect_uri=https://oauth.vk.com/blank.html&code=c1213133c1054533d4
+type Dialog struct {
+	Uid          uint64
+	ReadState    int
+	Title        string //useful for group chats, "..." for tet-a-tet
+	FirstMessage string
+	InputBuf     string
+	// Date      uint64
+	// Messages  []Messages
+}
+
 var apiUrl = "https://api.vk.com/method/"
 
 func NewApi() *Api {
@@ -31,12 +41,16 @@ func NewApi() *Api {
 	return api
 }
 
+//TODO
 func Auth() {
 
 }
 
 func (this *Api) RequestDialogsHeaders() []Dialog {
 	response := this.request("messages.getDialogs", &map[string]string{})
+	if response == nil {
+		return nil
+	}
 
 	body := json.NewDecoder(response.Body)
 
@@ -45,11 +59,19 @@ func (this *Api) RequestDialogsHeaders() []Dialog {
 		_, _ = body.Token()
 	}
 
-	var dialog Dialog
+	var dialogJson DialogJson
 	var dialogs []Dialog
 	for body.More() {
-		body.Decode(&dialog)
-		dialogs = append(dialogs, dialog)
+		body.Decode(&dialogJson)
+
+		newDialog := &Dialog{
+			Uid:          dialogJson.Uid,
+			ReadState:    dialogJson.ReadState,
+			Title:        dialogJson.Title,
+			FirstMessage: dialogJson.Body,
+			InputBuf:     "",
+		}
+		dialogs = append(dialogs, *newDialog)
 	}
 
 	response.Body.Close()
@@ -71,7 +93,7 @@ func (this *Api) request(method string, params *map[string]string) *http.Respons
 	response, err := http.Get(url.String())
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return nil
 	}
 
 	return response
