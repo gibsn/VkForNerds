@@ -87,7 +87,11 @@ func (this *Ui) CreateDialogsGrid(dialogs []api.Dialog) *termui.Grid {
 		if dialogs[i].Title != " ... " {
 			dialogTitle = dialogs[i].Title
 		} else {
-			dialogTitle = fmt.Sprintf("%d", dialogs[i].Uid)
+			if dialogs[i].FullName != "" {
+				dialogTitle = dialogs[i].FullName
+			} else {
+				dialogTitle = fmt.Sprintf("%d", dialogs[i].Uid)
+			}
 		}
 
 		//TODO: mention files in message like [Photo] or smth

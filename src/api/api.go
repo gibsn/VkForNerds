@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -23,8 +24,20 @@ type DialogJson struct {
 	Body      string
 }
 
+type UserJson struct {
+	id        uint64
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+type ErrorJson struct {
+	Code int    `json:"error_code"`
+	Msg  string `json:"error_msg"`
+}
+
 type Dialog struct {
 	Uid          uint64
+	FullName     string
 	ReadState    int
 	Title        string //useful for group chats, "..." for tet-a-tet
 	FirstMessage string
@@ -35,8 +48,10 @@ type Dialog struct {
 
 var apiUrl = "https://api.vk.com/method/"
 
-func NewApi() *Api {
-	api := &Api{}
+func NewApi(token string) *Api {
+	api := &Api{
+		AccessToken: token,
+	}
 
 	return api
 }
@@ -52,6 +67,7 @@ func (this *Api) RequestDialogsHeaders() []Dialog {
 		return nil
 	}
 
+	defer response.Body.Close()
 	body := json.NewDecoder(response.Body)
 
 	//hacking over the poorly designed array in response
@@ -74,9 +90,51 @@ func (this *Api) RequestDialogsHeaders() []Dialog {
 		dialogs = append(dialogs, *newDialog)
 	}
 
-	response.Body.Close()
-
 	return dialogs
+}
+
+func checkError(body *json.Decoder) *ErrorJson {
+	_, _ = body.Token()
+	respType, _ := body.Token()
+
+	if respType == "error" {
+		var errorJson ErrorJson
+		body.Decode(&errorJson)
+		return &errorJson
+	}
+
+	return nil
+}
+
+// TODO batch requests
+func (this *Api) ResolveNameByUid(uid uint64) string {
+	params := &map[string]string{
+		"user_ids": fmt.Sprintf("%d", uid),
+		"fields":   "first_name,last_name",
+	}
+
+	response := this.request("users.get", params)
+	if response == nil {
+		return ""
+	}
+
+	defer response.Body.Close()
+	body := json.NewDecoder(response.Body)
+
+	if apiErr := checkError(body); apiErr != nil {
+		log.Println(apiErr)
+		return ""
+	}
+
+	_, _ = body.Token()
+
+	var userJson UserJson
+	if err := body.Decode(&userJson); err != nil {
+		log.Println(err)
+		return ""
+	}
+
+	return userJson.FirstName + " " + userJson.LastName
 }
 
 func (this *Api) request(method string, params *map[string]string) *http.Response {

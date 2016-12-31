@@ -30,8 +30,7 @@ func main() {
 		log.Fatal("You have not provided token")
 	}
 
-	client := vkclient.NewVkClient()
-	client.Api.AccessToken = *token
+	client := vkclient.NewVkClient(*token)
 
 	client.Routine()
 }
