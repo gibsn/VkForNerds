@@ -31,7 +31,9 @@ func NewUi() *Ui {
 	return ui
 }
 
-func (this *Ui) StartUi() {
+func (this *Ui) Routine() {
+	defer termui.Close()
+
 	termui.Loop()
 }
 

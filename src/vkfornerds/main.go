@@ -33,5 +33,5 @@ func main() {
 	client := vkclient.NewVkClient()
 	client.Api.AccessToken = *token
 
-	client.Start()
+	client.Routine()
 }
