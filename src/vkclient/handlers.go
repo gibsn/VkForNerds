@@ -18,6 +18,8 @@ func (this *VkClient) showDialogs() {
 }
 
 func (this *VkClient) showCurrDialog() {
+	this.CurrOpenedDialog.Messages = this.Api.RequestHistoryWith(this.CurrOpenedDialog.Uid)
+
 	dialogGrid := this.Ui.CreateDialogGrid(this.CurrOpenedDialog)
 	this.Ui.ChangeCurrentGrid(dialogGrid)
 }

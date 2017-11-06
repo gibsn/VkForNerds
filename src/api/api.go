@@ -15,7 +15,7 @@ type Api struct {
 	AccessToken string
 }
 
-type DialogJson struct {
+type MessageJson struct {
 	Date      uint64
 	Out       int
 	Uid       uint64
@@ -42,8 +42,8 @@ type Dialog struct {
 	Title        string //useful for group chats, "..." for tet-a-tet
 	FirstMessage string
 	InputBuf     string
+	Messages     []MessageJson
 	// Date      uint64
-	// Messages  []Messages
 }
 
 var apiUrl = "https://api.vk.com/method/"
@@ -61,6 +61,19 @@ func Auth() {
 
 }
 
+func checkError(body *json.Decoder) *ErrorJson {
+	_, _ = body.Token()
+	respType, _ := body.Token()
+
+	if respType == "error" {
+		var errorJson ErrorJson
+		body.Decode(&errorJson)
+		return &errorJson
+	}
+
+	return nil
+}
+
 func (this *Api) RequestDialogsHeaders() []Dialog {
 	response := this.request("messages.getDialogs", &map[string]string{})
 	if response == nil {
@@ -70,15 +83,21 @@ func (this *Api) RequestDialogsHeaders() []Dialog {
 	defer response.Body.Close()
 	body := json.NewDecoder(response.Body)
 
-	//hacking over the poorly designed array in response
-	for i := 0; i < 4; i++ {
-		_, _ = body.Token()
+	if apiError := checkError(body); apiError != nil {
+		log.Println(apiError)
+		return nil
 	}
 
-	var dialogJson DialogJson
+	_, _ = body.Token()
+	_, _ = body.Token()
+
+	var dialogJson MessageJson
 	var dialogs []Dialog
 	for body.More() {
-		body.Decode(&dialogJson)
+		if err := body.Decode(&dialogJson); err != nil {
+			log.Println(err)
+			return nil
+		}
 
 		newDialog := &Dialog{
 			Uid:          dialogJson.Uid,
@@ -91,19 +110,6 @@ func (this *Api) RequestDialogsHeaders() []Dialog {
 	}
 
 	return dialogs
-}
-
-func checkError(body *json.Decoder) *ErrorJson {
-	_, _ = body.Token()
-	respType, _ := body.Token()
-
-	if respType == "error" {
-		var errorJson ErrorJson
-		body.Decode(&errorJson)
-		return &errorJson
-	}
-
-	return nil
 }
 
 // TODO batch requests
@@ -135,6 +141,45 @@ func (this *Api) ResolveNameByUid(uid uint64) string {
 	}
 
 	return userJson.FirstName + " " + userJson.LastName
+}
+
+func (this *Api) RequestHistoryWith(uid uint64) []MessageJson {
+	offset := 0
+	count := 20
+	params := &map[string]string{
+		"offset":  fmt.Sprintf("%d", offset),
+		"count":   fmt.Sprintf("%d", count),
+		"user_id": fmt.Sprintf("%d", uid),
+	}
+
+	response := this.request("messages.getHistory", params)
+	if response == nil {
+		return nil
+	}
+
+	defer response.Body.Close()
+	body := json.NewDecoder(response.Body)
+
+	if apiErr := checkError(body); apiErr != nil {
+		log.Println(apiErr)
+		return nil
+	}
+
+	_, _ = body.Token()
+	_, _ = body.Token()
+
+	var messages []MessageJson
+	var messageJson MessageJson
+	for body.More() {
+		if err := body.Decode(&messageJson); err != nil {
+			log.Println(err)
+			return nil
+		}
+
+		messages = append(messages, messageJson)
+	}
+
+	return messages
 }
 
 func (this *Api) request(method string, params *map[string]string) *http.Response {
